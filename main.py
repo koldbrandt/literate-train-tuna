@@ -30,6 +30,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
   
     for epoch in range(num_epochs):
         model.train()
+        patience = 5
         #For each epoch
         train_correct = 0
         train_loss = []
@@ -68,19 +69,26 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
         print(f"Loss train: {np.mean(train_loss):.3f}\t test: {np.mean(test_loss):.3f}\t",
               f"Accuracy train: {out_dict['train_acc'][-1]*100:.1f}%\t test: {out_dict['test_acc'][-1]*100:.1f}%\t",
               f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
+
+        # Early stopping 
+        if epoch > 10 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
+            patience -= 1
+            if patience == 0:
+                print("Early stopping")
+                break
     return out_dict
 
 
 
 def main():
-    train_data, test_data = dataset.get_data()
+    train_data, test_data = dataset.get_data(16)
 
     device = ut.get_device()
-    model = ResNet(3,8)
+    model = ResNet(3,64, num_res_blocks=8)
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
-    training_stats = train(model, optimizer, train_data, test_data, device, 20)
+    training_stats = train(model, optimizer, train_data, test_data, device, 50)
     
     ut.plot_training_stats(training_stats)
 
