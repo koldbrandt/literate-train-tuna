@@ -19,7 +19,7 @@ import dataset
 from model import Network
 
 
-def train(model, optimizer, train_loader, test_loader, device, num_epochs=10,):
+def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
     def loss_fun(output, target):
         return F.nll_loss(output, target)
     out_dict = {'train_acc': [],
@@ -60,8 +60,8 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=10,):
             test_loss.append(loss_fun(output, target).cpu().item())
             predicted = output.argmax(1)
             test_correct += (target==predicted).sum().cpu().item()
-        out_dict['train_acc'].append(train_correct/len(trainset))
-        out_dict['test_acc'].append(test_correct/len(testset))
+        out_dict['train_acc'].append(train_correct/len(train_loader.dataset))
+        out_dict['test_acc'].append(test_correct/len(test_loader.dataset))
         out_dict['train_loss'].append(np.mean(train_loss))
         out_dict['test_loss'].append(np.mean(test_loss))
         print(f"Loss train: {np.mean(train_loss):.3f}\t test: {np.mean(test_loss):.3f}\t",
@@ -79,15 +79,11 @@ def main():
     train_data, test_data = dataset.get_data()
 
     device = get_device()
-    
     model = Network()
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
     train(model, optimizer, train_data, test_data, device)
-
-
-
 
 
 if __name__ == "__main__":

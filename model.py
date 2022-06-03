@@ -16,50 +16,19 @@ import matplotlib.pyplot as plt
 class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
-        self.convolutional = nn.Sequential(
-            nn.Conv2d(
-                in_channels=1,              
-                out_channels=8,            
-                kernel_size=3,              
-                stride=1,                   
-                padding=1,                  
-            ),
-            nn.ReLU(), 
-            nn.Conv2d(
-                in_channels=8,              
-                out_channels=8,            
-                kernel_size=3,              
-                stride=1,                   
-                padding=1,                  
-            ),
-            nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2),
-            nn.Conv2d(
-                in_channels=8,              
-                out_channels=16,            
-                kernel_size=3,              
-                stride=1,                   
-                padding=1,                  
-            ),
-            nn.ReLU(),
-            nn.Conv2d(
-                in_channels=16,              
-                out_channels=16,            
-                kernel_size=3,              
-                stride=1,                   
-                padding=1,                  
-            ),
-            nn.ReLU())
+        self.conv1 = nn.Conv2d(in_channels=3, out_channels=10, kernel_size=3)
+        self.conv2 = nn.Conv2d(10, 20, kernel_size=3)
+        self.conv2_drop = nn.Dropout2d()
+        self.fc1 = nn.Sequential(nn.Linear(58320, 2048),
+                                nn.ReLU(),
+                                nn.Linear(2048, 512),
+                                nn.ReLU(),
+                                nn.Linear(512,2),
+                                nn.LogSoftmax(dim=1))
 
-        self.fully_connected = nn.Sequential(
-                nn.Linear(128*128*16, 500),
-                nn.ReLU(),
-                nn.Linear(500, 10),
-                nn.Softmax(dim=1))
-    
     def forward(self, x):
-        x = self.convolutional(x)
-        #reshape x so it becomes flat, except for the first dimension (which is the minibatch)
-        x = x.view(x.size(0), -1)
-        x = self.fully_connected(x)
+        x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
+        x = x.view(x.shape[0],-1)
+        x = self.fc1(x)
         return x

@@ -41,10 +41,15 @@ class Hotdog_NotHotdog(torch.utils.data.Dataset):
 
 def get_data():
     size = 128
-    train_transform = transforms.Compose([transforms.Resize((size, size)), 
-                                        transforms.ToTensor()])
-    test_transform = transforms.Compose([transforms.Resize((size, size)), 
-                                        transforms.ToTensor()])
+    train_transform = transforms.Compose([transforms.Resize(255),transforms.RandomResizedCrop(224),
+                                transforms.CenterCrop(224),
+                                transforms.RandomHorizontalFlip(),
+                                transforms.ColorJitter(),
+                                transforms.ToTensor()])
+    test_transform = transforms.Compose([
+                                transforms.Resize(255),
+                                transforms.CenterCrop(224),
+                                transforms.ToTensor()])
 
     batch_size = 64
     trainset = Hotdog_NotHotdog(train=True, transform=train_transform)
