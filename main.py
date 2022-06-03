@@ -2,7 +2,6 @@ import os
 import numpy as np
 import glob
 import PIL.Image as Image
-from tqdm.notebook import tqdm
 
 import torch
 import torch.nn as nn
@@ -10,14 +9,14 @@ import torch.nn.functional as F
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
+
 
 import sys
 
 import dataset
 import utilities as ut
 
-from model import Network
+from model import Network, ResNet
 
 
 
@@ -29,12 +28,12 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               'train_loss': [],
               'test_loss': []}
   
-    for epoch in tqdm(range(num_epochs), unit='epoch'):
+    for epoch in range(num_epochs):
         model.train()
         #For each epoch
         train_correct = 0
         train_loss = []
-        for minibatch_no, (data, target) in tqdm(enumerate(train_loader), total=len(train_loader)):
+        for minibatch_no, (data, target) in enumerate(train_loader):
             data, target = data.to(device), target.to(device)
             #Zero the gradients computed for each weight
             optimizer.zero_grad()
@@ -67,7 +66,8 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
         out_dict['train_loss'].append(np.mean(train_loss))
         out_dict['test_loss'].append(np.mean(test_loss))
         print(f"Loss train: {np.mean(train_loss):.3f}\t test: {np.mean(test_loss):.3f}\t",
-              f"Accuracy train: {out_dict['train_acc'][-1]*100:.1f}%\t test: {out_dict['test_acc'][-1]*100:.1f}%")
+              f"Accuracy train: {out_dict['train_acc'][-1]*100:.1f}%\t test: {out_dict['test_acc'][-1]*100:.1f}%\t",
+              f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
     return out_dict
 
 
@@ -76,14 +76,15 @@ def main():
     train_data, test_data = dataset.get_data()
 
     device = ut.get_device()
-    model = Network()
+    model = ResNet(3,8)
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
-    training_stats = train(model, optimizer, train_data, test_data, device, 5)
+    training_stats = train(model, optimizer, train_data, test_data, device, 20)
     
     ut.plot_training_stats(training_stats)
 
+    torch.save(model.state_dict(), 'models/model.pt')
 
 
 if __name__ == "__main__":
