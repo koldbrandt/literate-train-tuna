@@ -60,7 +60,7 @@ class ResNet(nn.Module):
         for i in range(num_res_blocks):
             conv_layers.append(ResNetBlock(n_features))
         self.res_blocks = nn.Sequential(*conv_layers)
-        self.fc = nn.Sequential(nn.Linear(1048576, 2048),
+        self.fc = nn.Sequential(nn.Linear(524288, 2048),
                                 nn.ReLU(),
                                 nn.Linear(2048, 512),
                                 nn.ReLU(),

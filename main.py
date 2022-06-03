@@ -30,7 +30,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
   
     for epoch in range(num_epochs):
         model.train()
-        patience = 5
+        patience = 3
         #For each epoch
         train_correct = 0
         train_loss = []
@@ -84,11 +84,13 @@ def main():
     train_data, test_data = dataset.get_data(16)
 
     device = ut.get_device()
-    model = ResNet(3,64, num_res_blocks=8)
+    model = ResNet(3,32, num_res_blocks=8)
     model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
-    
-    training_stats = train(model, optimizer, train_data, test_data, device, 50)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+
+
+    training_stats = train(model, optimizer, train_data, test_data, device, 20)
     
     ut.plot_training_stats(training_stats)
 
