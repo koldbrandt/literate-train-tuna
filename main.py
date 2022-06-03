@@ -15,8 +15,10 @@ import matplotlib.pyplot as plt
 import sys
 
 import dataset
+import utilities as ut
 
 from model import Network
+
 
 
 def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
@@ -68,22 +70,20 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               f"Accuracy train: {out_dict['train_acc'][-1]*100:.1f}%\t test: {out_dict['test_acc'][-1]*100:.1f}%")
     return out_dict
 
-def get_device():
-    if torch.cuda.is_available():
-        print("The code will run on GPU.")
-    else:
-        print("The code will run on CPU. Go to Edit->Notebook Settings and choose GPU as the hardware accelerator")
-    return torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+
 
 def main():
     train_data, test_data = dataset.get_data()
 
-    device = get_device()
+    device = ut.get_device()
     model = Network()
     model.to(device)
     optimizer = torch.optim.Adam(model.parameters(), lr=0.001)
     
-    train(model, optimizer, train_data, test_data, device)
+    training_stats = train(model, optimizer, train_data, test_data, device, 5)
+    
+    ut.plot_training_stats(training_stats)
+
 
 
 if __name__ == "__main__":
