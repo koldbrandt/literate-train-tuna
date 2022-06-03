@@ -65,9 +65,9 @@ def train(model, optimizer, num_epochs=10):
 
 
 
-def main()
+def main():
     train_data, test_data = dataset.get_data()
-    
+
 
 if __name__ == "__main__":
     main()
