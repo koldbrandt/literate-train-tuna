@@ -16,21 +16,20 @@ import sys
 import dataset
 import utilities as ut
 
-from model import Network, ResNet
+from model import Network, ResNet, FinetuneResnet50
 
 
 
 def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
     def loss_fun(output, target):
-        return F.nll_loss(output, target)
+        return F.cross_entropy(output, target)
     out_dict = {'train_acc': [],
               'test_acc': [],
               'train_loss': [],
               'test_loss': []}
-  
+    patience = 3
     for epoch in range(num_epochs):
         model.train()
-        patience = 3
         #For each epoch
         train_correct = 0
         train_loss = []
@@ -71,7 +70,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
 
         # Early stopping 
-        if epoch > 10 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
+        if epoch > 5 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
             patience -= 1
             if patience == 0:
                 print("Early stopping")
@@ -81,10 +80,11 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
 
 
 def main():
-    train_data, test_data = dataset.get_data(16)
+    train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
-    model = ResNet(3,32, num_res_blocks=8)
+    # model = ResNet(3,16, num_res_blocks=8)
+    model = FinetuneResnet50(2)
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
