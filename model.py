@@ -25,8 +25,7 @@ class Network(nn.Module):
                                 nn.ReLU(),
                                 nn.Linear(2048, 512),
                                 nn.ReLU(),
-                                nn.Linear(512,2),
-                                nn.LogSoftmax(dim=1))
+                                nn.Linear(512,2))
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
