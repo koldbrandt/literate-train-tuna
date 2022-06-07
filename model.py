@@ -18,6 +18,7 @@ class Network(nn.Module):
     def __init__(self):
         super(Network, self).__init__()
         self.conv1 = nn.Conv2d(in_channels=3, out_channels=10, kernel_size=3)
+        self.batchnorm_1 = nn.BatchNorm2d(10)
         self.conv2 = nn.Conv2d(10, 20, kernel_size=3)
         self.conv2_drop = nn.Dropout2d()
         self.fc1 = nn.Sequential(nn.Linear(58320, 2048),
@@ -29,6 +30,7 @@ class Network(nn.Module):
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
+        x = self.batchnorm_1(x)
         x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
