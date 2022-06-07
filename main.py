@@ -1,35 +1,28 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
+import os
+import sys
 
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
-from torchcam.methods import SmoothGradCAMpp
-
-
-import sys
+from torch.utils.data import DataLoader
 
 import dataset
 import utilities as ut
-
-from model import Network, ResNet, FinetuneResnet50
-
+from model import FinetuneResnet50, Network, ResNet
 
 
-def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
+def train(model, optimizer, train_loader, test_loader, device, num_epochs=50, patience = 10):
     def loss_fun(output, target):
         return F.cross_entropy(output, target)
     out_dict = {'train_acc': [],
               'test_acc': [],
               'train_loss': [],
               'test_loss': []}
-    patience = 3
     for epoch in range(num_epochs):
         model.train()
         #For each epoch
@@ -50,7 +43,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
 
             train_loss.append(loss.item())
             #Compute how many were correctly classified
-            predicted = output.argmax(1)
+            predicted = F.softmax(output, dim=1).argmax(1)
             train_correct += (target==predicted).sum().cpu().item()
         #Comput the test accuracy
         test_loss = []
@@ -61,7 +54,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
             with torch.no_grad():
                 output = model(data)
             test_loss.append(loss_fun(output, target).cpu().item())
-            predicted = output.argmax(1)
+            predicted =  F.softmax(output, dim=1).argmax(1)
             test_correct += (target==predicted).sum().cpu().item()
         out_dict['train_acc'].append(train_correct/len(train_loader.dataset))
         out_dict['test_acc'].append(test_correct/len(test_loader.dataset))
@@ -77,8 +70,6 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
             if patience == 0:
                 print("Early stopping")
                 break
-        else:
-            patience = 3
 
     return out_dict
 
@@ -88,9 +79,9 @@ def main():
     train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
+    model = FinetuneResnet50(2, pretrained=True)
+
     # model = ResNet(3,16, num_res_blocks=8)
-    model = Network()
-    # model = FinetuneResnet50(2)
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -101,7 +92,7 @@ def main():
     ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
-    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
+    ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
 
     cam_extractor = SmoothGradCAMpp(model)
 
