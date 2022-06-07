@@ -1,33 +1,28 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
+import os
+import sys
 
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-
-
-import sys
+from torch.utils.data import DataLoader
 
 import dataset
 import utilities as ut
-
-from model import Network, ResNet, FinetuneResnet50
-
+from model import FinetuneResnet50, Network, ResNet
 
 
-def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
+def train(model, optimizer, train_loader, test_loader, device, num_epochs=50, patience = 10):
     def loss_fun(output, target):
         return F.cross_entropy(output, target)
     out_dict = {'train_acc': [],
               'test_acc': [],
               'train_loss': [],
               'test_loss': []}
-    patience = 3
     for epoch in range(num_epochs):
         model.train()
         #For each epoch
@@ -70,13 +65,11 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
 
         # Early stopping 
-        if epoch > 5 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
+        if epoch > 10 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
             patience -= 1
             if patience == 0:
                 print("Early stopping")
                 break
-        else:
-            patience = 3
 
     return out_dict
 
@@ -86,20 +79,23 @@ def main():
     train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
+
+    # model = FinetuneResnet50(2)
     # model = ResNet(3,16, num_res_blocks=8)
     model = Network()
     # model = FinetuneResnet50(2)
     model.to(device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
-    # optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 
-    training_stats = train(model, optimizer, train_data, test_data, device, 30)
+    training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
     ut.plot_training_stats(training_stats)
 
-    torch.save(model.state_dict(), 'models/model_adam.pt')
-    ut.save_training_stats(training_stats, 'Basic-adam.csv')
+    torch.save(model.state_dict(), 'models/model.pt')
+    # ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
+    ut.save_training_stats(training_stats, 'CNN_batch_norm.csv')
 
 
 if __name__ == "__main__":

@@ -1,16 +1,16 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
-from tqdm.notebook import tqdm
+import os
 
+import matplotlib.pyplot as plt
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+from tqdm.notebook import tqdm
 
 
 class Hotdog_NotHotdog(torch.utils.data.Dataset):
@@ -41,22 +41,22 @@ class Hotdog_NotHotdog(torch.utils.data.Dataset):
 
 def get_data(batch_size = 16):
     size = 256
-    train_transform = transforms.Compose([# transforms.RandomRotation(10),
-                                        transforms.Resize((size, size)), 
-                                        # transforms.RandomHorizontalFlip(),
-                                        # transforms.ColorJitter(),
-                                        transforms.ToTensor()])
-     
-    # train_transform = transforms.Compose([transforms.RandomRotation(10),
+    # train_transform = transforms.Compose([# transforms.RandomRotation(10),
     #                                     transforms.Resize((size, size)), 
-    #                                     transforms.RandomHorizontalFlip(),
-    #                                     transforms.ColorJitter(),
-    #                                     transforms.ToTensor(), 
-    #                                     transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
+    #                                     # transforms.RandomHorizontalFlip(),
+    #                                     # transforms.ColorJitter(),
+    #                                     transforms.ToTensor()])
+     
+    train_transform = transforms.Compose([transforms.RandomRotation(10),
+                                        transforms.Resize((size, size)), 
+                                        transforms.RandomHorizontalFlip(),
+                                        transforms.ColorJitter(),
+                                        transforms.ToTensor(), 
+                                        transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))])
 
     test_transform = transforms.Compose([transforms.Resize((size, size)), 
                                         transforms.ToTensor()
-                                        #,transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
+                                        ,transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
                                         ])
 
 
