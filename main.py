@@ -83,13 +83,8 @@ def main():
 
     device = ut.get_device()
     # model = ResNet(3,16, num_res_blocks=8)
-<<<<<<< HEAD
     model = Network()
     # model = FinetuneResnet50(2)
-=======
-    model = Network()
-    # model = FinetuneResnet50(2)
->>>>>>> 9103dc199abb5a3a43b308f5bbd3c2ea137fbc13
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -97,14 +92,11 @@ def main():
 
     training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
-    ut.plot_training_stats(training_stat)
+    # ut.plot_training_stats(training_stat)
 
     torch.save(model.state_dict(), 'models/model.pt')
-<<<<<<< HEAD
-    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
-=======
-    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
->>>>>>> 9103dc199abb5a3a43b308f5bbd3c2ea137fbc13
+    # ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
+    ut.save_training_stats(training_stats, 'CNN_batch_norm.csv')
 
 
 if __name__ == "__main__":
