@@ -91,7 +91,7 @@ def main():
 
     training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
-    # ut.plot_training_stats(training_stat)
+    ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
     # ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
