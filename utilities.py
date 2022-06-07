@@ -31,3 +31,9 @@ def plot_training_stats(stats):
     plt.ylabel('Accuracy')
     plt.legend()
     plt.savefig('figures/accuracy.png')
+
+
+def save_training_stats(stats, filename):
+    # Save the training statistics to a csv
+    stats_df = pd.DataFrame(stats)
+    stats_df.to_csv("trainstats/"+filename)
