@@ -75,6 +75,9 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
             if patience == 0:
                 print("Early stopping")
                 break
+        else:
+            patience = 3
+
     return out_dict
 
 
@@ -91,11 +94,12 @@ def main():
     optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 
-    training_stats = train(model, optimizer, train_data, test_data, device, 20)
+    training_stats = train(model, optimizer, train_data, test_data, device, 30)
     
     ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
+    ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
 
 
 if __name__ == "__main__":
