@@ -1,17 +1,17 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
-from tqdm.notebook import tqdm
+import os
 
+import matplotlib.pyplot as plt
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
-import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
 import torchvision.models as models
+import torchvision.transforms as transforms
+from torch.utils.data import DataLoader
+from tqdm.notebook import tqdm
 
 
 class Network(nn.Module):
@@ -21,7 +21,7 @@ class Network(nn.Module):
         self.batchnorm_1 = nn.BatchNorm2d(10)
         self.conv2 = nn.Conv2d(10, 20, kernel_size=3)
         self.conv2_drop = nn.Dropout2d()
-        self.fc1 = nn.Sequential(nn.Linear(58320, 2048),
+        self.fc1 = nn.Sequential(nn.Linear(76880, 2048),
                                 nn.ReLU(),
                                 nn.Linear(2048, 512),
                                 nn.ReLU(),
@@ -83,7 +83,7 @@ class FinetuneResnet50(nn.Module):
     def __init__(self, num_classes):
         super(FinetuneResnet50, self).__init__()
 
-        self.model = models.resnet50(pretrained=True)
+        self.model = models.resnet50(pretrained=False)
         self.fc1 = nn.Linear(2048, 2048)
         self.fc2 = nn.Linear(2048, num_classes)
         self.dropout = nn.Dropout(0.1)

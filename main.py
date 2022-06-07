@@ -1,23 +1,19 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
+import os
+import sys
 
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-
-
-import sys
+from torch.utils.data import DataLoader
 
 import dataset
 import utilities as ut
-
-from model import Network, ResNet, FinetuneResnet50
-
+from model import FinetuneResnet50, Network, ResNet
 
 
 def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
@@ -70,7 +66,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
 
         # Early stopping 
-        if epoch > 5 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
+        if epoch > 10 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
             patience -= 1
             if patience == 0:
                 print("Early stopping")
@@ -87,19 +83,28 @@ def main():
 
     device = ut.get_device()
     # model = ResNet(3,16, num_res_blocks=8)
-    # model = FinetuneResnet50(2)
+<<<<<<< HEAD
     model = Network()
+    # model = FinetuneResnet50(2)
+=======
+    model = Network()
+    # model = FinetuneResnet50(2)
+>>>>>>> 9103dc199abb5a3a43b308f5bbd3c2ea137fbc13
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 
-    training_stats = train(model, optimizer, train_data, test_data, device, 30)
+    training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
     ut.plot_training_stats(training_stat)
 
     torch.save(model.state_dict(), 'models/model.pt')
-    ut.save_training_stats(training_stats, 'Simple_CNN_Batch_Norm.csv')
+<<<<<<< HEAD
+    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
+=======
+    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
+>>>>>>> 9103dc199abb5a3a43b308f5bbd3c2ea137fbc13
 
 
 if __name__ == "__main__":
