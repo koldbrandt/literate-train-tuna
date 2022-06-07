@@ -94,6 +94,11 @@ def main():
     torch.save(model.state_dict(), 'models/model.pt')
     ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
 
+    cam_extractor = SmoothGradCAMpp(model)
+
+    img = train_data[0]
+    plt.imshow(np.asarray(img))
+
 
 if __name__ == "__main__":
     main()
