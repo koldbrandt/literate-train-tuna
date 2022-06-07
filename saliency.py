@@ -43,6 +43,6 @@ first_img = first_batch[0][5].to(device)
 out = model(first_img.unsqueeze(0))
 activation_map = cam_extractor(out.squeeze(0).argmax().item(), out)
 # Visualize the raw CAM
-plt.imshow(activation_map[0].squeeze(0).cpu().numpy()); plt.axis('off'); plt.tight_layout(); plt.savefig('img1.jpg')   
+plt.imshow(activation_map[0].squeeze(0).cpu().numpy()); plt.axis('off'); plt.tight_layout(); plt.savefig('figures/img1.jpg')   
 result = overlay_mask(to_pil_image(first_img), to_pil_image(activation_map[0].squeeze(0), mode='F'), alpha=0.5)
-plt.imshow(result); plt.axis('off'); plt.tight_layout(); plt.savefig('img2.jpg')
+plt.imshow(result); plt.axis('off'); plt.tight_layout(); plt.savefig('figures/img2.jpg')
