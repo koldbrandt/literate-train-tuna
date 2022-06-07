@@ -16,14 +16,13 @@ import utilities as ut
 from model import FinetuneResnet50, Network, ResNet
 
 
-def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
+def train(model, optimizer, train_loader, test_loader, device, num_epochs=50, patience = 10):
     def loss_fun(output, target):
         return F.cross_entropy(output, target)
     out_dict = {'train_acc': [],
               'test_acc': [],
               'train_loss': [],
               'test_loss': []}
-    patience = 3
     for epoch in range(num_epochs):
         model.train()
         #For each epoch
@@ -71,8 +70,6 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
             if patience == 0:
                 print("Early stopping")
                 break
-        else:
-            patience = 3
 
     return out_dict
 
@@ -82,6 +79,8 @@ def main():
     train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
+
+    # model = FinetuneResnet50(2)
     # model = ResNet(3,16, num_res_blocks=8)
     model = Network()
     # model = FinetuneResnet50(2)
