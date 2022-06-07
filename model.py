@@ -81,7 +81,7 @@ class FinetuneResnet50(nn.Module):
     def __init__(self, num_classes):
         super(FinetuneResnet50, self).__init__()
 
-        self.model = models.resnet50(pretrained=True)
+        self.model = models.resnet50(pretrained=False)
         self.fc1 = nn.Linear(2048, 2048)
         self.fc2 = nn.Linear(2048, num_classes)
         self.dropout = nn.Dropout(0.1)

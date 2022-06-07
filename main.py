@@ -70,7 +70,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
               f"Memory allocated: {torch.cuda.memory_allocated(device=device)/1e9:.1f} GB")
 
         # Early stopping 
-        if epoch > 5 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
+        if epoch > 10 and out_dict['test_acc'][-1] < out_dict['test_acc'][-2]:
             patience -= 1
             if patience == 0:
                 print("Early stopping")
@@ -90,15 +90,15 @@ def main():
     model = FinetuneResnet50(2)
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
-    optimizer = torch.optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
+    optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
 
 
-    training_stats = train(model, optimizer, train_data, test_data, device, 30)
+    training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
     ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
-    ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
+    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
 
 
 if __name__ == "__main__":

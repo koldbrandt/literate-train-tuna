@@ -1,6 +1,7 @@
 import matplotlib.pyplot as plt
 import torch
 import numpy as np
+import pandas as pd
 def get_device():
     if torch.cuda.is_available():
         print("The code will run on GPU.")
