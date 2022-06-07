@@ -1,16 +1,16 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
-from tqdm.notebook import tqdm
+import os
 
+import matplotlib.pyplot as plt
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-import matplotlib.pyplot as plt
+from torch.utils.data import DataLoader
+from tqdm.notebook import tqdm
 
 
 class Hotdog_NotHotdog(torch.utils.data.Dataset):

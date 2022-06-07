@@ -1,23 +1,19 @@
-import os
-import numpy as np
 import glob
-import PIL.Image as Image
+import os
+import sys
 
+import numpy as np
+import PIL.Image as Image
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
-from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
-
-
-import sys
+from torch.utils.data import DataLoader
 
 import dataset
 import utilities as ut
-
-from model import Network, ResNet, FinetuneResnet50
-
+from model import FinetuneResnet50, Network, ResNet
 
 
 def train(model, optimizer, train_loader, test_loader, device, num_epochs=50,):
