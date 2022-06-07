@@ -87,7 +87,8 @@ def main():
 
     device = ut.get_device()
     # model = ResNet(3,16, num_res_blocks=8)
-    model = FinetuneResnet50(2)
+    model = Network()
+    # model = FinetuneResnet50(2)
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
