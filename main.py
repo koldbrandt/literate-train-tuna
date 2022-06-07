@@ -79,7 +79,7 @@ def main():
     train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
-    model = FinetuneResnet50(2, pretrained=True)
+    model = FinetuneResnet50(2, pretrained=False)
 
     # model = ResNet(3,16, num_res_blocks=8)
     model.to(device)
@@ -92,12 +92,7 @@ def main():
     ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
-    ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
-
-    cam_extractor = SmoothGradCAMpp(model)
-
-    img = train_data[0]
-    plt.imshow(np.asarray(img))
+    ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
 
 
 if __name__ == "__main__":
