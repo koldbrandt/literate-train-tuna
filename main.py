@@ -9,6 +9,8 @@ import torch.nn.functional as F
 import torchvision.datasets as datasets
 from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
+import matplotlib.pyplot as plt
+from torchcam.methods import SmoothGradCAMpp
 
 
 import sys
@@ -95,6 +97,11 @@ def main():
     ut.plot_training_stats(training_stats)
 
     torch.save(model.state_dict(), 'models/model.pt')
+
+    cam_extractor = SmoothGradCAMpp(model)
+
+    img = train_data[0]
+    plt.imshow(np.asarray(img))
 
 
 if __name__ == "__main__":
