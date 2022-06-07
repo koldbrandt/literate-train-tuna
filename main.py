@@ -43,7 +43,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50, pa
 
             train_loss.append(loss.item())
             #Compute how many were correctly classified
-            predicted = output.argmax(1)
+            predicted = F.softmax(output, dim=1).argmax(1)
             train_correct += (target==predicted).sum().cpu().item()
         #Comput the test accuracy
         test_loss = []
@@ -54,7 +54,7 @@ def train(model, optimizer, train_loader, test_loader, device, num_epochs=50, pa
             with torch.no_grad():
                 output = model(data)
             test_loss.append(loss_fun(output, target).cpu().item())
-            predicted = output.argmax(1)
+            predicted =  F.softmax(output, dim=1).argmax(1)
             test_correct += (target==predicted).sum().cpu().item()
         out_dict['train_acc'].append(train_correct/len(train_loader.dataset))
         out_dict['test_acc'].append(test_correct/len(test_loader.dataset))
@@ -79,11 +79,9 @@ def main():
     train_data, test_data = dataset.get_data(64)
 
     device = ut.get_device()
+    model = FinetuneResnet50(2, pretrained=True)
 
-    # model = FinetuneResnet50(2)
     # model = ResNet(3,16, num_res_blocks=8)
-    model = Network()
-    # model = FinetuneResnet50(2)
     model.to(device)
     # optimizer = torch.optim.Adam(model.parameters(), lr=0.001, weight_decay=0.0001)
     optimizer = torch.optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
@@ -91,11 +89,10 @@ def main():
 
     training_stats = train(model, optimizer, train_data, test_data, device, 100)
     
-    ut.plot_training_stats(training_stats)
+    ut.plot_training_stats(training_stat)
 
     torch.save(model.state_dict(), 'models/model.pt')
-    # ut.save_training_stats(training_stats, 'Resnet50-no-transfer.csv')
-    ut.save_training_stats(training_stats, 'CNN_batch_norm.csv')
+    ut.save_training_stats(training_stats, 'Resnet50-transfer.csv')
 
 
 if __name__ == "__main__":
