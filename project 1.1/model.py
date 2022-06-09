@@ -29,7 +29,7 @@ class Network(nn.Module):
 
     def forward(self, x):
         x = F.relu(F.max_pool2d(self.conv1(x), 2))
-        x = self.batchnorm_1(x)
+        # x = self.batchnorm_1(x)
         x = F.relu(F.max_pool2d(self.conv2_drop(self.conv2(x)), 2))
         x = x.view(x.shape[0],-1)
         x = self.fc1(x)
