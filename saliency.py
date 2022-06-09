@@ -40,7 +40,7 @@ first_batch = next(it)
 first_img = first_batch[0][5].to(device)
 
 
-out = model(first_img.unsqueeze(0))
+out = F.softmax(model(first_img.unsqueeze(0)), dim=1)
 activation_map = cam_extractor(out.squeeze(0).argmax().item(), out)
 # Visualize the raw CAM
 plt.imshow(activation_map[0].squeeze(0).cpu().numpy()); plt.axis('off'); plt.tight_layout(); plt.savefig('figures/img1.jpg')   
