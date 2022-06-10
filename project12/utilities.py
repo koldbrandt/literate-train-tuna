@@ -3,10 +3,6 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
-
-from graphviz import Digraph
-# Note: graphviz may require more than pip installation due to path issue: e.g. brew install graphviz for mac
 
 from PIL import Image, ExifTags
 #from pycocotools.coco import COCO

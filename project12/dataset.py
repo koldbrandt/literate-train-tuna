@@ -7,7 +7,6 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import seaborn as sns; sns.set()
 
 import PIL.Image as Image
 import torch
@@ -50,7 +49,6 @@ def get_data(train_images, train_labels, batch_size=16):
                                         transforms.Resize((size, size)), 
                                         transforms.ToTensor(), 
                                         ])
-
     test_transform = transforms.Compose([transforms.Resize((size, size)), 
                                         transforms.ToTensor()
                                         ])
@@ -60,5 +58,49 @@ def get_data(train_images, train_labels, batch_size=16):
 
     return train_loader
 
+
+def load_image_data(id_img, basewidth=400, data_path='/dtu/datasets1/02514/data_wastedetection'):
+    
+    anns_file_path = data_path + '/' + 'annotations.json'
+
+    # Read annotations
+    with open(anns_file_path, 'r') as f:
+        dataset = json.loads(f.read())
+
+    categories = dataset['categories']
+    anns = dataset['annotations']
+    imgs = dataset['images']
+    cat_names = []
+    super_cat_names = []
+    super_cat_ids = {}
+    super_cat_last_name = ''
+    nr_super_cats = 0
+    for cat_it in categories:
+        cat_names.append(cat_it['name'])
+        super_cat_name = cat_it['supercategory']
+        # Adding new supercat
+        if super_cat_name != super_cat_last_name:
+            super_cat_names.append(super_cat_name)
+            super_cat_ids[super_cat_name] = nr_super_cats
+            super_cat_last_name = super_cat_name
+            nr_super_cats += 1
+    
+    image_filepath = imgs[id_img]['file_name']
+    image = Image.open(data_path + '/' + image_filepath)
+    bbox = []
+    labels = []
+    for d in anns:
+        if d['image_id'] == id_img:
+            cat = [cat for cat in categories if cat['id'] == d['category_id']][0]
+            label = super_cat_ids[cat['supercategory']]
+            labels.append(label)
+            bbox.append(d['bbox'])
+    bbox = torch.as_tensor(bbox)
+    wpercent = (basewidth/float(image.size[0]))
+    hsize = int((float(image.size[1])*float(wpercent)))
+    image = image.resize((basewidth,hsize), Image.ANTIALIAS)
+    bbox_gt = (bbox*wpercent).numpy().astype(int)
+    
+    return np.array(image), bbox_gt, labels
 
 
