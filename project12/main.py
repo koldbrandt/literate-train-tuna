@@ -23,24 +23,37 @@ def Validation(model, test_loader, criterion, device, test_im_ids):
     # initialize variables for storing results
     test_correct = 0
     test_loss = []
+    test_accuracy = []
 
     for id_img in test_im_ids:
         img, bbox_gt, labels = load_image_data(id_img=id_img)
+        train_images, train_labels = proposals.get_proposals(img, bbox_gt, labels, IoU_threshold=0.5)
+        test_loader = dataset.get_data(train_images, train_labels)
+        
+        # We need the fucking boxes !!!!
 
 
-    # for each minibatch
-    for data, target in test_loader:
-        # move data to device
-        data, target = data.to(device), target.to(device)
-        # forward pass
-        output = model(data)
-        # compute loss
-        loss = criterion(output, target)
-        # compute accuracy
-        predicted = F.softmax(output, dim=1).argmax(1)
-        test_correct += (target==predicted).sum().cpu().item()
-        # store loss and accuracy
-        test_loss.append(loss.item())
+
+        dict_predicted_boxes = {}
+
+        for data, target in test_loader:
+            # move data to device
+            data, target = data.to(device), target.to(device)
+            # forward pass
+            output = model(data)
+            # compute loss
+            loss = criterion(output, target)
+            # compute accuracy
+            predicted = F.softmax(output, dim=1).argmax(1)
+
+
+
+            test_correct += (target==predicted).sum().cpu().item()
+            # store loss and accuracy
+            test_loss.append(loss.item())
+            test_accuracy.append(predicted.eq(target).sum().cpu().item()/len(target))
+        
+        return test_loss/len(test_im_ids), test_accuracy/len(test_im_ids)
 
 
 # training loop with trainset and testset
@@ -79,6 +92,9 @@ def train(model, optimizer, train_ids, test_ids, device, num_epochs=50, patience
                 #Compute how many were correctly classified
                 predicted = F.softmax(output, dim=1).argmax(1)
                 train_correct += (target==predicted).sum().cpu().item()
+
+            Validation(model, train_loader, loss_fun, device, test_ids)
+
     #         #Comput the test accuracy
     #         test_loss = []
     #         test_correct = 0
