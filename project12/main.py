@@ -24,8 +24,8 @@ def Validation(model, test_loader, criterion, device, test_im_ids):
     test_correct = 0
     test_loss = []
 
-    for id_im in test_im_ids:
-        im, bbox_gt, labels = load_image_data(id_im=id_im, categories=categories, anns=anns, imgs=imgs)
+    for id_img in test_im_ids:
+        img, bbox_gt, labels = load_image_data(id_img=id_img)
 
 
     # for each minibatch
