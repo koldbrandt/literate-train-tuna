@@ -7,6 +7,7 @@ import json
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import seaborn as sns; sns.set()
 
 import PIL.Image as Image
 import torch
@@ -14,6 +15,7 @@ import torch.nn as nn
 import torch.nn.functional as F
 import torchvision.datasets as datasets
 import torchvision.transforms as transforms
+import torchvision.models as models
 from torch.utils.data import DataLoader
 from tqdm.notebook import tqdm
 from torch import utils
@@ -21,6 +23,8 @@ from torch import utils
 import random
 from math import floor
 import cv2
+import pickle
+
 
 def selective_search(image):
     # return region proposals of selective searh over an image
@@ -30,9 +34,9 @@ def selective_search(image):
     return ss.process()
 
 def calculate_IoU(bb1, bb2):
-# calculate IoU(Intersection over Union) of 2 boxes 
-# **IoU = Area of Overlap / Area of Union
-# https://github.com/Hulkido/RCNN/blob/master/RCNN.ipynb
+  # calculate IoU(Intersection over Union) of 2 boxes 
+  # **IoU = Area of Overlap / Area of Union
+  # https://github.com/Hulkido/RCNN/blob/master/RCNN.ipynb
 
     x_left = max(bb1['x1'], bb2['x1'])
     y_top = max(bb1['y1'], bb2['y1'])
@@ -47,9 +51,9 @@ def calculate_IoU(bb1, bb2):
     bb2_area = (bb2['x2'] - bb2['x1']) * (bb2['y2'] - bb2['y1'])
     union_area = bb1_area + bb2_area - intersection_area
 
-    return intersection_area / union_area   
+    return intersection_area / union_area
 
-def load_image_data(id_im, categories, anns, imgs, basewidth=400, data_path='/dtu/datasets1/02514/data_wastedetection'):
+def load_image_data(id_im, categories, anns, imgs, basewidth=600, data_path='/dtu/datasets1/02514/data_wastedetection'):
     cat_names = []
     super_cat_names = []
     super_cat_ids = {}
@@ -64,7 +68,7 @@ def load_image_data(id_im, categories, anns, imgs, basewidth=400, data_path='/dt
             super_cat_ids[super_cat_name] = nr_super_cats
             super_cat_last_name = super_cat_name
             nr_super_cats += 1
-        
+    
     image_filepath = imgs[id_im]['file_name']
     image = Image.open(data_path + '/' + image_filepath)
     bbox = []
@@ -88,7 +92,7 @@ def weirdbbox2bbox(x,y,w,h):
     x2, y2 = x+w, y+h
     return {'x1':x1, 'y1':y1, 'x2':x2, 'y2':y2}
 
-def get_proposals(image, bbox_gt, labels, IoU_threshold=0.5):
+def get_proposals(image, bbox_gt, labels, img_id, IoU_threshold=0.5, target_object_rate=0.3):
     obj_counter = 0
     bg_counter = 0
     train_images=[]
@@ -117,12 +121,15 @@ def get_proposals(image, bbox_gt, labels, IoU_threshold=0.5):
             obj_counter += 1
             cropped = image[bbox_est['y1']:bbox_est['y2'], bbox_est['x1']:bbox_est['x2'], :]
             train_images.append(cropped)
-            train_labels.append([labels[best_i], bbox_gt[best_i], bbox_est])
+            train_labels.append([labels[best_i], bbox_gt[best_i], bbox_est, img_id])
 
         else:
-            bg_counter+=1
-            cropped = image[bbox_est['y1']:bbox_est['y2'], bbox_est['x1']:bbox_est['x2'], :]
-            train_images.append(cropped)
-            train_labels.append([28, np.array([1,1,1,1]), bbox_est])
-    
+            if (bg_counter+obj_counter) > 0:
+                if obj_counter/(bg_counter+obj_counter) >= target_object_rate:
+                    bg_counter+=1
+                    cropped = image[bbox_est['y1']:bbox_est['y2'], bbox_est['x1']:bbox_est['x2'], :]
+                    train_images.append(cropped)
+                    train_labels.append([28, np.array([1,1,1,1]), bbox_est, img_id])
+
     return train_images, train_labels
+
