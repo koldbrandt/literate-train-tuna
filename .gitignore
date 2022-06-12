@@ -131,3 +131,7 @@ dmypy.json
 
 models/
 figures/
+project12/notebooks/train_images.pkl
+project12/notebooks/train_labels.pkl
+project12/notebooks/val_images.pkl
+project12/notebooks/val_labels.pkl
